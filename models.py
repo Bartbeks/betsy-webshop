@@ -13,37 +13,41 @@ class Base(Model):
         database = db
 
 class Users(Base):
-
-   
     id = AutoField(primary_key=True)
     name = CharField()
     adres = CharField()
     billing = CharField()
 
 
-    
-
 class Products(Base):
- 
-    id = AutoField(primary_key=True)
+    id = AutoField(primary_key=True,index = True)
     name = CharField()
     description = CharField()
     ownerID = ForeignKeyField(Users, backref='Products')
     amount = IntegerField()
-    price_per_Unit = DecimalField()
-    selling_Price = DecimalField()
+    price_per_Unit = DecimalField(decimal_places=2, auto_round=True)
+    selling_Price = DecimalField(decimal_places=2, auto_round=True)
+    tag_id = IntegerField()
    
 
 
 class Orders(Base):
     id = AutoField(primary_key=True)
-    customer = ForeignKeyField(Users.id, backref='Products')
+    customer = ForeignKeyField(Users, backref='Orders')
     amount = IntegerField()
 
     
-class ProductTags(Base):
+
+   
+
+class Tags(Base):
+    id = AutoField(primary_key=True)
     tagname = CharField(unique=True)
-    categorie = CharField()
-    product_owner_id = ForeignKeyField(Products, backref='ProductsTags')
-    product_id = IntegerField()
+    categorie = CharField(unique= True)
+   
+
+class ProductTags(Base):
+    product_id = ForeignKeyField(Products,backref='ProductsTags')
+    tag_id = ForeignKeyField(Tags,backref='ProductsTags')
+
     

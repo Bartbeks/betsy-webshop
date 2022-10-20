@@ -2,23 +2,16 @@ __winc_id__ = "d7b474e9b3a54d23bca54879a4f1855b"
 __human_name__ = "Betsy Webshop"
 
 
-
-
-
 from models import *
 
 """Search for products based on a term. Searching for 'sweater' should yield all products that have the word 'sweater' in the name. This search should be case-insensitive"""
 
 def search(term):
-    query = (Products.select().where(fn.LOWER(Products.name).contains(term.lower())))
-    
-    if query.exists():
-        for prod in query:
-            print(prod.name)
-    
-    else:
-        print("product not found")
-
+    term = term.lower()
+    if not (query := Products.select().where(Products.name.contains(term) | Products.description.contains(term))):
+         return print("product not Found")
+    result = [(product.name, product.description) for product in query]
+    return  print(f" Searchresult: {result} ")
 
 """View the products of a given user."""
 
@@ -27,30 +20,23 @@ def list_user_products(user_id):
             .select(Products, Users)
             .join(Users)
             .where(Products.ownerID ==user_id))
- 
     for product in query:
         print(product.name, product.ownerID.name)
-
-
-
 
 """View all products for a given tag"""
 def list_products_per_tag(tag_id):
     """View all products for a given tag."""
-    query = (ProductTags.select(ProductTags,Products).join(Products).where(ProductTags.product_owner_id==tag_id))
+    
+    query = (ProductTags.select(ProductTags,Tags).join(Tags).where(Tags.id==tag_id))
 
     for prod in query:
-        print(prod.tagname)
+       return print(f" products per tag {prod.product_id.name}")
 
 """add a product to a user."""
-
-def add_product_to_catalog(user_id, prod,decscr,am,unit_price, selprice):
-
+def add_product_to_catalog(user_id, prod,decscr,am,unit_price, selprice,tag_id):
     try:
-         
         queryUser =  Users.select(Users).where(Users.id == user_id).exists()
         queryProducts =  Products.select(Products).where(fn.LOWER(Products.name) == fn.LOWER(prod)).exists()
-      
         if queryUser == False:
             return  print("No such User in datase add user first")
         """Check of het product bestaat bij user """
@@ -58,68 +44,62 @@ def add_product_to_catalog(user_id, prod,decscr,am,unit_price, selprice):
            query =  Products.select(Products).where(Products.ownerID == user_id)
            for product in query:
                 if product.name == prod and product.ownerID_id==user_id:
-                    return    print("Update Products")
-
-        
+                    return  print("Product bestaat al")        
         """User exists add product to user"""
-        Products.create( name = prod,description=decscr,ownerID =user_id,amount= am, price_per_Unit=unit_price, selling_Price= selprice)
+        return  Products.create( name = prod,description=decscr,ownerID =user_id,amount= am, price_per_Unit=unit_price, selling_Price= selprice,tag_id=tag_id )
 
-        """check if uniqe tag exist                    
-        als die exists kijk of het dezelfde owner id heeft. een product kan verschillende owners hebben  als dat het geval is het geval is
-        Dit moet een in het model een denk ik een extrat veld worden
-        Moet dus ook data set aanpassen"""
-        is_tag_exist = ProductTags.select(ProductTags).where(ProductTags.tagname==prod).exists()
-        if is_tag_exist == False:
-            ProductTags.create( tagname=prod, categorie= decscr,product_owner_id=user_id)
-        else:
-            query =  ProductTags.update(product_owner_id = user_id).where(ProductTags.tagname == prod)
-            query.execute()
-       
     except Exception as e:
         print(e)
 
 def remove_product(product_id):
     queryProduct =  Products.select(Products).where((Products.id) == product_id).exists()
+    tagsquery= ProductTags.select(ProductTags).where(ProductTags.product_id== product_id)
     if queryProduct:
         product = Products.get(Products.id == product_id)
-        query = ProductTags.select(ProductTags).where(ProductTags.product_id==product_id)
-        """remove tags for product in productstags """
-        for tag in query:
+        """first remove producttags"""
+        for tag in  tagsquery:
             tag.delete_instance()
-
         product.delete_instance()
 
 
-
-        
- 
-      
-
-
-   
-   
-    
-
-
-
-
 def update_stock(product_id, new_quantity):
-    ...
+    queryProducts = Products.select(Products).where(Products.id==product_id )
+    if queryProducts.exists():
+        prod = Products.get(Products.id == product_id)
+        old_amount = prod.amount
+        new_amount = old_amount + new_quantity
+        update_Amount = Products( id =product_id ,amount=new_amount)
+        """ check of updated amount geen negatief number is"""
+        if update_Amount.amount >= 0:
+            update_Amount.save(only=[Products.amount])
+        else:
+            return print(f"Amount kan niet null of negatief zijn max aantal product in stock = {old_amount}") 
+    else: 
+        return print("product bestaat niet")
+    #   Products.update(Products.amount).where(Products.amount=new_amount)
+     
 
 
 def purchase_product(product_id, buyer_id, quantity):
-    ...
+    queryProducts = Products.select(Products).where(Products.id==product_id )
+    if queryProducts.exists():
+     Orders.create(customer=buyer_id, amount=quantity)
+     update_stock(product_id,quantity)
+     return
 
-
-def remove_product(product_id):
-    ...
 
 search("PAUL")
 list_user_products(1)
 
-
 # geef als param id van product mee 
-list_products_per_tag(1)
-add_product_to_catalog(2, 'Martin D 28', "Body vorm Dreadnought met cutaway Sparren bovenblad",4,2.899,3.899)
-# add_product_to_catalog(2, 'Fender stratocaster de luxe', "Bouwjaar 1965",4,2.899,3.899)
-# remove_product(1)
+list_products_per_tag(10)
+"""PARAMs:  userOwnerID , name, decription, amount, price per unit, selling_price,"""
+add_product_to_catalog(1 ,'gibson les paul', "Body vorm Solid",4,2.899,3.899,10)
+"""parm: productid"""
+remove_product(2)
+"""params: prodid, amount"""
+update_stock(6,2)
+"""params: product.id, buyer.id, quantity"""
+purchase_product(1,2,2)
+
+
