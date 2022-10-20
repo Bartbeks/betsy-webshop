@@ -1,5 +1,5 @@
 import os
-os.remove("webshop.db")
+
 from models import *
 
 
