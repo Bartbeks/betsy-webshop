@@ -87,19 +87,20 @@ def purchase_product(product_id, buyer_id, quantity):
      update_stock(product_id,quantity)
      return
 
+"""UN Comment functie call to get result"""
+# search("PAUL")
+# "Param: userid"
+# list_user_products(1)
 
-search("PAUL")
-list_user_products(1)
-
-# geef als param id van product mee 
-list_products_per_tag(10)
-"""PARAMs:  userOwnerID , name, decription, amount, price per unit, selling_price,"""
-add_product_to_catalog(1 ,'gibson les paul', "Body vorm Solid",4,2.899,3.899,10)
-"""parm: productid"""
-remove_product(2)
-"""params: prodid, amount"""
-update_stock(6,2)
-"""params: product.id, buyer.id, quantity"""
-purchase_product(1,2,2)
+# # geef als param id van product mee 
+# list_products_per_tag(10)
+# """PARAMs:  userOwnerID , name, decription, amount, price per unit, selling_price,"""
+# add_product_to_catalog(1 ,'gibson les paul', "Body vorm Solid",4,2.899,3.899,10)
+# """parm: productid"""
+# remove_product(2)
+# """params: prodid, amount"""
+# update_stock(6,2)
+# """params: product.id, buyer.id, quantity"""
+# purchase_product(1,2,2)
 
 
