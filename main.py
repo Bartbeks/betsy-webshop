@@ -95,7 +95,7 @@ def purchase_product(product_id, buyer_id, quantity):
 # # geef als param id van product mee 
 # list_products_per_tag(10)
 # """PARAMs:  userOwnerID , name, decription, amount, price per unit, selling_price,"""
-# add_product_to_catalog(1 ,'gibson les paul', "Body vorm Solid",4,2.899,3.899,10)
+# add_product_to_catalog(1 ,'gibson les paul', "Body vorm Solid",4,2.899,3.899,2)
 # """parm: productid"""
 # remove_product(2)
 # """params: prodid, amount"""
