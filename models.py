@@ -1,6 +1,6 @@
 # Models go here
 
-from enum import unique
+
 from peewee import *
 
 
@@ -25,9 +25,9 @@ class Products(Base):
     description = CharField()
     ownerID = ForeignKeyField(Users, backref='Products')
     amount = IntegerField()
-    price_per_Unit = DecimalField(decimal_places=2, auto_round=True)
+    # price_per_Unit = DecimalField(decimal_places=2, auto_round=True)
     selling_Price = DecimalField(decimal_places=2, auto_round=True)
-    tag_id = IntegerField()
+    # tag_id = CharField()
    
 
 
@@ -35,15 +35,16 @@ class Orders(Base):
     id = AutoField(primary_key=True)
     customer = ForeignKeyField(Users, backref='Orders')
     amount = IntegerField()
+    product_name= CharField()
 
     
 
    
 
 class Tags(Base):
-    id = AutoField(primary_key=True)
-    tagname = CharField(unique=True)
-    categorie = CharField(unique= True)
+    # id = AutoField(primary_key=True)
+    tagname = CharField(unique=True,primary_key=True)
+    # categorie = CharField(unique= True)
    
 
 class ProductTags(Base):
